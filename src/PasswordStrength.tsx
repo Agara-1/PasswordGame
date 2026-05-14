@@ -1,43 +1,49 @@
 import React from 'react';
 
+// Upravili jsme rozhraní, aby komponenta věděla, že jí App.tsx pošle 'strengthLevel'
 interface Props {
     password: string;
+    strengthLevel: string; // <-- Přidáno
 }
 
-export const PasswordStrength: React.FC<Props> = ({ password }) => {
+export const PasswordStrength: React.FC<Props> = ({ password, strengthLevel }) => {
     const lengthValid = password.length >= 8;
     const hasUpper = /[A-Z]/.test(password);
     const hasNum = /[0-9]/.test(password);
     const hasSpecial = /[!@#$%^&*]/.test(password);
 
+
     const score = [lengthValid, hasUpper, hasNum, hasSpecial].filter(Boolean).length;
-    const strength = score < 2 ? "Slabé" : score < 4 ? "Střední" : "Silné";
-    const color = score < 2 ? "red" : score < 4 ? "orange" : "green";
+
+
+    const color = strengthLevel === "Slabé" ? "#dc3545" : strengthLevel === "Střední" ? "#ffc107" : "#198754";
 
     return (
-        <div>
-            <div className="strength-bar-bg">
+        <div className="mt-4">
+            <div className="progress" style={{ height: '10px' }}>
                 <div
-                    className="strength-bar-fill"
-                    style={{ width: `${score * 25}%`, backgroundColor: color }}
+                    className="progress-bar"
+                    role="progressbar"
+                    style={{ width: `${score * 25}%`, backgroundColor: color, transition: 'width 0.3s ease-in-out' }}
                 />
             </div>
 
-            <p style={{ fontWeight: 'bold', marginTop: '10px' }}>
-                Síla hesla: <span style={{ color }}>{strength}</span>
+            <p className="mt-2" style={{ fontWeight: 'bold' }}>
+
+                Síla hesla: <span style={{ color }}>{strengthLevel}</span>
             </p>
 
-            <ul className="criteria-list">
-                <li style={{ color: lengthValid ? 'green' : 'gray' }}>
+            <ul className="list-unstyled mt-2">
+                <li style={{ color: lengthValid ? '#198754' : 'var(--text-main)' }}>
                     {lengthValid ? '✓' : '○'} Minimálně 8 znaků
                 </li>
-                <li style={{ color: hasUpper ? 'green' : 'gray' }}>
+                <li style={{ color: hasUpper ? '#198754' : 'var(--text-main)' }}>
                     {hasUpper ? '✓' : '○'} Obsahuje velké písmeno
                 </li>
-                <li style={{ color: hasNum ? 'green' : 'gray' }}>
+                <li style={{ color: hasNum ? '#198754' : 'var(--text-main)' }}>
                     {hasNum ? '✓' : '○'} Obsahuje číslo
                 </li>
-                <li style={{ color: hasSpecial ? 'green' : 'gray' }}>
+                <li style={{ color: hasSpecial ? '#198754' : 'var(--text-main)' }}>
                     {hasSpecial ? '✓' : '○'} Speciální znak (!@#$%^&*)
                 </li>
             </ul>

@@ -1,13 +1,35 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './App.css';
 import { PasswordInput } from './PasswordInput';
 import { PasswordStrength } from './PasswordStrength';
 import { checkTime } from './PasswordTimeValidator';
 import { checkSequence } from './CharacterSequenceValidator';
-import './App.css'; // Nezapomeň importovat CSS!
+
+const evaluatePassword = (pwd: string) => {
+    let score = 0;
+    if (pwd.length >= 8) score++;
+    if (/[A-Z]/.test(pwd)) score++;
+    if (/[0-9]/.test(pwd)) score++;
+    if (/[!@#$%^&*]/.test(pwd)) score++;
+
+    if (score < 2) return "Slabé";
+    if (score < 4) return "Střední";
+    return "Silné";
+};
 
 export default function App() {
+
     const [password, setPassword] = useState("");
     const [startTime, setStartTime] = useState<number | null>(null);
+
+
+    const [passwordStrength, setPasswordStrength] = useState("Slabé");
+
+    useEffect(() => {
+        const strength = evaluatePassword(password);
+        setPasswordStrength(strength);
+    }, [password]);
 
     const handlePasswordChange = (newPassword: string) => {
         setPassword(newPassword);
@@ -22,29 +44,29 @@ export default function App() {
     const sequenceResult = checkSequence(password);
 
     return (
-        <div className="app-container">
-            <h1>Kontrola hesla</h1>
+        <div className="min-vh-100 d-flex justify-content-center align-items-center theme-bg transition-all p-3">
+            <div className="theme-card shadow-sm rounded-4 p-4 p-md-5 w-100" style={{ maxWidth: '440px' }}>
 
-            <PasswordInput password={password} setPassword={handlePasswordChange} />
+                <h2 className="text-center mb-4 fw-bold theme-text">Kontrola hesla</h2>
 
-            {timeResult.isTooFast && (
-                <p className="alert-error">⚠️ {timeResult.message}</p>
-            )}
+                <PasswordInput password={password} setPassword={handlePasswordChange} />
 
-            <div
-                className="sequence-box"
-                style={{
-                    backgroundColor: sequenceResult.isValid ? '#e8f5e9' : '#f5f5f5',
-                    border: sequenceResult.isValid ? '1px solid #4caf50' : '1px solid #ccc'
-                }}
-            >
-                <p style={{ margin: 0 }}>
-                    Speciální sekvence (4 různé typy znaků):{' '}
-                    <strong>{sequenceResult.isValid ? 'Nalezena ✅' : 'Chybí ❌'}</strong>
-                </p>
+                {timeResult.isTooFast && (
+                    <div className="alert alert-danger py-2 px-3 mt-3 text-center" role="alert">
+                        ⚠️ {timeResult.message}
+                    </div>
+                )}
+
+                <div className="mt-3 p-3 rounded-3 theme-info-box border text-center">
+                    Speciální sekvence:{' '}
+                    <strong style={{ color: sequenceResult.isValid ? 'var(--clr-success)' : 'inherit' }}>
+                        {sequenceResult.isValid ? 'Nalezena ' : 'Chybí '}
+                    </strong>
+                </div>
+
+
+                <PasswordStrength password={password} strengthLevel={passwordStrength} />
             </div>
-
-            <PasswordStrength password={password} />
         </div>
     );
 }
