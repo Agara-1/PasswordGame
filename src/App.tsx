@@ -5,6 +5,7 @@ import { PasswordInput } from './PasswordInput';
 import { PasswordStrength } from './PasswordStrength';
 import { checkTime } from './PasswordTimeValidator';
 import { checkSequence } from './CharacterSequenceValidator';
+import { CountryFlagValidator } from './CountryValidator';
 
 const evaluatePassword = (pwd: string) => {
     let score = 0;
@@ -23,41 +24,32 @@ export default function App() {
     const [startTime, setStartTime] = useState<number | null>(null);
     const [passwordStrength, setPasswordStrength] = useState("Slabé");
 
-    // 1. EFEKT: Výpočet síly hesla
     useEffect(() => {
         const strength = evaluatePassword(password);
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setPasswordStrength(strength);
     }, [password]);
 
-    // 2. EFEKT: Aktualizace titulku stránky
     useEffect(() => {
         document.title = `Síla hesla: ${passwordStrength}`;
     }, [passwordStrength]);
 
-    // 3. EFEKT (NOVÝ): Sabotáž hesla
     useEffect(() => {
-        // Spustí interval každých 10 sekund (10000 ms)
         const sabotageInterval = setInterval(() => {
             setPassword(prevPassword => {
-                // Náhodně rozhodneme, zda přidáme emoji nebo odebereme znak
                 const action = Math.random() < 0.5 ? 'add' : 'remove';
-
                 if (action === 'add') {
-                    // Přidáme emoji ke stávajícímu heslu
                     return prevPassword + "😜";
                 } else {
-                    // Odebereme náhodný znak, pokud heslo není prázdné
                     if (prevPassword.length === 0) return prevPassword;
                     const index = Math.floor(Math.random() * prevPassword.length);
-                    // Spojí část hesla před vybraným indexem a část za ním (vynechá 1 znak)
                     return prevPassword.slice(0, index) + prevPassword.slice(index + 1);
                 }
             });
-        }, 10000); // Pro testování 10 sekund. Pro odevzdání můžeš přepsat na 120000
+        }, 10000);
 
-        // Cleanup funkce: Zastaví interval, když se komponenta zničí (odmountuje)
         return () => clearInterval(sabotageInterval);
-    }, []); // Prázdné pole závislostí: Efekt se nastaví jen jednou při načtení stránky
+    }, []);
 
     const handlePasswordChange = (newPassword: string) => {
         setPassword(newPassword);
@@ -91,6 +83,9 @@ export default function App() {
                         {sequenceResult.isValid ? 'Nalezena ✅' : 'Chybí ❌'}
                     </strong>
                 </div>
+
+
+                <CountryFlagValidator password={password} />
 
                 <PasswordStrength password={password} strengthLevel={passwordStrength} />
             </div>

@@ -39,7 +39,7 @@ export const CountryFlagValidator: React.FC<Props> = ({ password }) => {
 
                 {isValid
                     ? <span style={{ color: 'var(--clr-success)' }}>Heslo obsahuje zkratku země: {selectedCountry} ✅</span>
-                    : <span>Heslo neobsahuje zkratku země: {selectedCountry} ❌</span>
+                    : <span>Heslo neobsahuje zkratku země ❌</span>
                 }
             </div>
 
