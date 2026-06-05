@@ -5,6 +5,7 @@ import { PasswordInput } from './PasswordInput';
 import { PasswordStrength } from './PasswordStrength';
 import { checkTime } from './PasswordTimeValidator';
 import { checkSequence } from './CharacterSequenceValidator';
+import { CountryFlagValidator } from './CountryValidator';
 
 const evaluatePassword = (pwd: string) => {
     let score = 0;
@@ -19,17 +20,36 @@ const evaluatePassword = (pwd: string) => {
 };
 
 export default function App() {
-
     const [password, setPassword] = useState("");
     const [startTime, setStartTime] = useState<number | null>(null);
-
-
     const [passwordStrength, setPasswordStrength] = useState("Slabé");
 
     useEffect(() => {
         const strength = evaluatePassword(password);
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setPasswordStrength(strength);
     }, [password]);
+
+    useEffect(() => {
+        document.title = `Síla hesla: ${passwordStrength}`;
+    }, [passwordStrength]);
+
+    useEffect(() => {
+        const sabotageInterval = setInterval(() => {
+            setPassword(prevPassword => {
+                const action = Math.random() < 0.5 ? 'add' : 'remove';
+                if (action === 'add') {
+                    return prevPassword + "😜";
+                } else {
+                    if (prevPassword.length === 0) return prevPassword;
+                    const index = Math.floor(Math.random() * prevPassword.length);
+                    return prevPassword.slice(0, index) + prevPassword.slice(index + 1);
+                }
+            });
+        }, 10000);
+
+        return () => clearInterval(sabotageInterval);
+    }, []);
 
     const handlePasswordChange = (newPassword: string) => {
         setPassword(newPassword);
@@ -60,10 +80,12 @@ export default function App() {
                 <div className="mt-3 p-3 rounded-3 theme-info-box border text-center">
                     Speciální sekvence:{' '}
                     <strong style={{ color: sequenceResult.isValid ? 'var(--clr-success)' : 'inherit' }}>
-                        {sequenceResult.isValid ? 'Nalezena ' : 'Chybí '}
+                        {sequenceResult.isValid ? 'Nalezena ✅' : 'Chybí ❌'}
                     </strong>
                 </div>
 
+                {/* TADY BYLA CHYBA - Název teď přesně sedí s importem nahoře */}
+                <CountryFlagValidator password={password} />
 
                 <PasswordStrength password={password} strengthLevel={passwordStrength} />
             </div>
